@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+    db:
+        image: postgres:16
+        container_name: receipt-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: appuser
+            POSTGRES_PASSWORD: apppass
+            POSTGRES_DB: receipts
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+
+    backend:
+        build: ./backend
+        container_name: receipt-backend
+        depends_on:
+            - db
+        environment:
+            DATABASE_URL: postgresql+psycopg2://appuser:apppass@db:5432/receipts
+        ports:
+            - "8000:8000"
+        restart: unless-stopped
+
+volumes:
+    pgdata:
